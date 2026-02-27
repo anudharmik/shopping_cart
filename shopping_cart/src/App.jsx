@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState , useEffect,useRef} from "react";
 
 const PRODUCTS = [
   { id: 1, name: "Balaclava Mask", price: 300 },
@@ -10,6 +10,32 @@ const PRODUCTS = [
 
 export default function App() {
   const [cart, setCart] = useState([]);
+  const isFirstRender=useRef(true);
+
+  //runs once on mount to load cart from localStorage
+  useEffect(()=>{
+    try{
+    const savedCart=localStorage.getItem("cart");
+    if(savedCart){
+      const parsedCart=JSON.parse(savedCart);
+      setCart(JSON.parse(savedCart));
+    }
+    }catch(err){
+    console.error("Invalid cart data in localStorage, clearing it.",err);
+    localStorage.removeItem("cart");
+    }
+  },[]);
+
+  //runs everytime cart changes to save cart to localStorage
+  useEffect(()=>{
+    if(isFirstRender.current){
+      isFirstRender.current=false;
+      return;
+    }
+    localStorage.setItem("cart",JSON.stringify(cart));
+  },[cart]);
+  
+
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
@@ -42,25 +68,24 @@ export default function App() {
 
       <button
         style={{ marginLeft: "10px" }}
-        onClick={() => increase(item.id)}
+        onClick={() => decrease(item.id)}
       >
-        +
+        -
       </button>
 
       <button
         style={{ marginLeft: "5px" }}
-        onClick={() => decrease(item.id)}
+        onClick={() => increase(item.id)}
       >
-        –
+        +
       </button>
     </li>
-  ))}
-</ul>
+    ))}
+      </ul>
       )}
-
       <h3>Total: ₹{total}</h3>
     </div>
-  );
+);
 
   function addToCart(product) {
     setCart(prevCart => {
