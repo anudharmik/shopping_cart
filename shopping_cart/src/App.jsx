@@ -7,8 +7,10 @@ const PRODUCTS = [
   { id: 3, name: "Riding Jacket", price: 5000 },
 ];
 
+
 export default function App() {
   const [cart, setCart] = useState([]);
+  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
     <div style={{ padding: "20px" }}>
@@ -33,14 +35,30 @@ export default function App() {
       {cart.length === 0 ? (
         <p>Cart is empty</p>
       ) : (
-        <ul>
-          {cart.map(item => (
-            <li key={item.id}>
-              {item.name} (Qty: {item.quantity})
-            </li>
-          ))}
-        </ul>
+      <ul>
+  {cart.map(item => (
+    <li key={item.id}>
+      {item.name} – ₹{item.price} × {item.quantity}
+
+      <button
+        style={{ marginLeft: "10px" }}
+        onClick={() => increase(item.id)}
+      >
+        +
+      </button>
+
+      <button
+        style={{ marginLeft: "5px" }}
+        onClick={() => decrease(item.id)}
+      >
+        –
+      </button>
+    </li>
+  ))}
+</ul>
       )}
+
+      <h3>Total: ₹{total}</h3>
     </div>
   );
 
@@ -59,4 +77,26 @@ export default function App() {
       return [...prevCart, { ...product, quantity: 1 }];
     });
   }
+
+function increase(id) {
+  setCart(prevCart =>
+    prevCart.map(item =>
+      item.id === id
+        ? { ...item, quantity: item.quantity + 1 }
+        : item
+    )
+  );
+}
+
+function decrease(id) {
+  setCart(prevCart =>
+    prevCart
+      .map(item =>
+        item.id === id
+          ? { ...item, quantity: item.quantity - 1 }
+          : item
+      )
+      .filter(item => item.quantity > 0)
+  );
+}
 }
