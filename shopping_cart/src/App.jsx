@@ -17,22 +17,24 @@ export default function App() {
     try{
     const savedCart=localStorage.getItem("cart");
     if(savedCart){
-      const parsedCart=JSON.parse(savedCart);
       setCart(JSON.parse(savedCart));
     }
-    }catch(err){
-    console.error("Invalid cart data in localStorage, clearing it.",err);
+    }catch{
     localStorage.removeItem("cart");
     }
   },[]);
 
-  //runs everytime cart changes to save cart to localStorage
+  //runs everytime cart changes to save cart to localStorage and clears localStorage if cart is empty
   useEffect(()=>{
     if(isFirstRender.current){
       isFirstRender.current=false;
       return;
     }
+    if(cart.length===0){
+      localStorage.removeItem("cart"); 
+    }else{
     localStorage.setItem("cart",JSON.stringify(cart));
+    }
   },[cart]);
   
 
@@ -66,13 +68,19 @@ export default function App() {
     <li key={item.id}>
       {item.name} – ₹{item.price} × {item.quantity}
 
+       {/*decrease button and also Disable decrease button if quantity is 1*/}
       <button
-        style={{ marginLeft: "10px" }}
+          style={{ marginLeft: "10px" ,
+          opacity:item.quantity===1?0.5:1,
+          cursor:item.quantity===1?"not-allowed":"pointer"
+        }}
+        disabled={item.quantity===1}
         onClick={() => decrease(item.id)}
       >
         -
       </button>
 
+      {/*increase button */}
       <button
         style={{ marginLeft: "5px" }}
         onClick={() => increase(item.id)}
@@ -84,6 +92,15 @@ export default function App() {
       </ul>
       )}
       <h3>Total: ₹{total}</h3>
+
+      {cart.length>0 && (
+        <button onClick={clearCart}
+        style={{marginTop:"10px"}}
+        >
+          Clear Cart
+        </button>
+      )}
+
     </div>
 );
 
@@ -123,5 +140,9 @@ function decrease(id) {
       )
       .filter(item => item.quantity > 0)
   );
+}
+
+function clearCart(){
+  setCart([]);
 }
 }
