@@ -1,5 +1,6 @@
-
-import { useState , useEffect,useRef} from "react";
+import { useState, useEffect, useRef } from "react";
+import ProductList from "./components/ProductList";
+import Cart from "./components/Cart";
 
 const PRODUCTS = [
   { id: 1, name: "Balaclava Mask", price: 300 },
@@ -7,9 +8,8 @@ const PRODUCTS = [
   { id: 3, name: "Riding Jacket", price: 5000 },
 ];
 
-
 export default function App() {
-  const [cart, setCart] = useState([]);
+  const [cart, setCart]=useState([]);
   const isFirstRender=useRef(true);
 
   //runs once on mount to load cart from localStorage
@@ -22,7 +22,7 @@ export default function App() {
     }catch{
     localStorage.removeItem("cart");
     }
-  },[]);
+  }, []);
 
   //runs everytime cart changes to save cart to localStorage and clears localStorage if cart is empty
   useEffect(()=>{
@@ -37,112 +37,65 @@ export default function App() {
     }
   },[cart]);
   
+  const total = cart.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  function addToCart(product) {
+    setCart(prev =>
+      prev.some(item => item.id === product.id)
+        ? prev.map(item =>
+            item.id === product.id
+              ? { ...item, quantity: item.quantity + 1 }
+              : item
+          )
+        : [...prev, { ...product, quantity: 1 }]
+    );
+  }
+
+  function increase(id) {
+    setCart(prev =>
+      prev.map(item =>
+        item.id === id
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      )
+    );
+  }
+
+  function decrease(id) {
+    setCart(prev =>
+      prev
+        .map(item =>
+          item.id === id
+            ? { ...item, quantity: item.quantity - 1 }
+            : item
+        )
+        .filter(item => item.quantity > 0)
+    );
+  }
+
+  function clearCart() {
+    setCart([]);
+  }
 
   return (
     <div style={{ padding: "20px" }}>
       <h1>Mini Shopping Cart</h1>
 
-      <h2>Products</h2>
-      <ul>
-        {PRODUCTS.map(product => (
-          <li key={product.id}>
-            {product.name} : ₹{product.price}
-            <button
-              style={{ marginLeft: "10px" }}
-              onClick={() => addToCart(product)}
-            >
-              Add to Cart
-            </button>
-          </li>
-        ))}
-      </ul>
+      <ProductList
+        products={PRODUCTS}
+        onAdd={addToCart}
+      />
 
-      <h2>Cart</h2>
-      {cart.length === 0 ? (
-        <p>Cart is empty</p>
-      ) : (
-      <ul>
-  {cart.map(item => (
-    <li key={item.id}>
-      {item.name} – ₹{item.price} × {item.quantity}
-
-       {/*decrease button and also Disable decrease button if quantity is 1*/}
-      <button
-          style={{ marginLeft: "10px" ,
-          opacity:item.quantity===1?0.5:1,
-          cursor:item.quantity===1?"not-allowed":"pointer"
-        }}
-        disabled={item.quantity===1}
-        onClick={() => decrease(item.id)}
-      >
-        -
-      </button>
-
-      {/*increase button */}
-      <button
-        style={{ marginLeft: "5px" }}
-        onClick={() => increase(item.id)}
-      >
-        +
-      </button>
-    </li>
-    ))}
-      </ul>
-      )}
-      <h3>Total: ₹{total}</h3>
-
-      {cart.length>0 && (
-        <button onClick={clearCart}
-        style={{marginTop:"10px"}}
-        >
-          Clear Cart
-        </button>
-      )}
-
+      <Cart
+        cart={cart}
+        total={total}
+        onIncrease={increase}
+        onDecrease={decrease}
+        onClear={clearCart}
+      />
     </div>
-);
-
-  function addToCart(product) {
-    setCart(prevCart => {
-      const existing = prevCart.find(item => item.id === product.id);
-
-      if (existing) {
-        return prevCart.map(item =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      }
-
-      return [...prevCart, { ...product, quantity: 1 }];
-    });
-  }
-
-function increase(id) {
-  setCart(prevCart =>
-    prevCart.map(item =>
-      item.id === id
-        ? { ...item, quantity: item.quantity + 1 }
-        : item
-    )
   );
-}
-
-function decrease(id) {
-  setCart(prevCart =>
-    prevCart
-      .map(item =>
-        item.id === id
-          ? { ...item, quantity: item.quantity - 1 }
-          : item
-      )
-      .filter(item => item.quantity > 0)
-  );
-}
-
-function clearCart(){
-  setCart([]);
-}
 }
