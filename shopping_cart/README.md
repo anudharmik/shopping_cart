@@ -43,4 +43,5 @@ src/
 npm install
 npm run dev
 
-
+## Live Demo
+https://shopping-cart-bice-five.vercel.app/
