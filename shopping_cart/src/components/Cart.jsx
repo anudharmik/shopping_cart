@@ -8,7 +8,13 @@ export default function Cart({
   onClear
 }) {
   return (
-    <>
+    <div style={{
+    border: "1px solid #ddd",
+    borderRadius: "8px",
+    padding: "16px",
+    marginBottom: "20px",
+    background: "#fafafa"
+    }}>
       <h2>Cart</h2>
 
       {cart.length === 0 ? (
@@ -36,6 +42,6 @@ export default function Cart({
           </button>
         </>
       )}
-    </>
+    </div>
   );
 }

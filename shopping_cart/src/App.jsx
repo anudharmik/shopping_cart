@@ -38,13 +38,11 @@ export default function App() {
   },[cart]);
   
   const total = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
+    (sum, item) => sum + item.price * item.quantity,0
   );
 
   function addToCart(product) {
-    setCart(prev =>
-      prev.some(item => item.id === product.id)
+    setCart(prev =>prev.some(item => item.id === product.id)
         ? prev.map(item =>
             item.id === product.id
               ? { ...item, quantity: item.quantity + 1 }
@@ -81,7 +79,12 @@ export default function App() {
   }
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{
+  maxWidth:"800px",
+  margin:"0 auto",
+  padding:"20px",
+  fontFamily: "system-ui, sans-serif"
+  }}>
       <h1>Mini Shopping Cart</h1>
 
       <ProductList
