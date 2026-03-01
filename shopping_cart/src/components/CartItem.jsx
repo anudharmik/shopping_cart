@@ -6,13 +6,11 @@ export default function CartItem({ item, onIncrease, onDecrease }) {
       <button
         style={{
           marginLeft: "10px",
-          opacity: item.quantity === 0 ? 0.5 : 1,
-          cursor: item.quantity === 0 ? "not-allowed" : "pointer"
+          opacity: item.quantity === 1?0.75:1
         }}
-        disabled={item.quantity === 0}
         onClick={() => onDecrease(item.id)}
       >
-        -
+        {item.quantity === 1?"Remove":"-"}
       </button>
 
       <button
