@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient";
+import ApplicationForm from "./components/ApplicationForm";
+import ApplicationList from "./components/ApplicationList";
+
 
 export default function App() {
   const [applications, setApplications] = useState([]);
@@ -7,8 +10,10 @@ export default function App() {
   const [error, setError] = useState(null);
   const [company,setCompany]=useState("");
   const [role,setRole]=useState("");
+
   const [filter,setFilter]=useState("All");
-  const visibleApplications =filter === "All" ? applications : applications.filter(app => app.status === filter);
+  //if i want to persist filter state, i can use local storage and useEffect to save and load it (less advisable)
+  //better options to persist filter state: use URL query parameters(e.g. ?filter=Interview) and read it on load, update it on change
 
   useEffect(() => {
     fetchApplications();
@@ -42,7 +47,7 @@ export default function App() {
       {
         company,
         role,
-        status:"applied",
+        status:"Applied",
       }
     ]);
 
@@ -94,71 +99,36 @@ export default function App() {
   return (
     <div style={{ padding: "20px" }}>
       <h1>Job Application Tracker</h1>
-      <form onSubmit={handleSubmit} style={{ marginBottom: "20px" }}>
-  <input
-    placeholder="Company"
-    value={company}
-    onChange={e => setCompany(e.target.value)}
-  />
-  <input
-    placeholder="Role"
-    value={role}
-    onChange={e => setRole(e.target.value)}
-    style={{ marginLeft: "10px" }}
-  />
-  <button type="submit" style={{ marginLeft: "10px" }}>
-    Add
-  </button>
-</form>
+      
+      <ApplicationForm
+        company={company}
+        role={role}
+        onCompanyChange={setCompany}
+        onRoleChange={setRole}
+        onSubmit={handleSubmit}
+      />
 
-    <select
-    value={filter}
-    onChange={e => setFilter(e.target.value)}
-    style={{ marginBottom: "10px" }}
-    >
-    <option value="All">All</option>
-    <option value="Applied">Applied</option>
-    <option value="Interview">Interview</option>
-    <option value="Offer">Offer</option>
-    <option value="Rejected">Rejected</option>
-    </select>
+      <select
+        value={filter}
+        onChange={e=>setFilter(e.target.value)}
+        style={{marginBottom:"20px"}}
+      >
+        <option value="All">All</option>
+        <option value="Applied">Applied</option>
+        <option value="Interview">Interview</option>
+        <option value="Offer">Offer</option>
+        <option value="Rejected">Rejected</option>
+      </select>
 
-      {loading && <p>Loading applications...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {loading && <p>Loading...</p>}
+      {error && <p style ={{color:"magenta"}}>{error}</p>}
 
-      {!loading && visibleApplications.length === 0 && (
-        <p>No applications yet</p>
-      )}
-
-      <ul>
-        {visibleApplications.map(app => (
-              <li key={app.id}>
-              <b>{app.company}</b> — {app.role}
-
-              <select
-                value={app.status}
-                onChange={e =>
-                  updateStatus(app.id, e.target.value)
-                }
-                style={{ marginLeft: "10px" }}
-              >
-                <option>Applied</option>
-                <option>Interview</option>
-                <option>Offer</option>
-                <option>Rejected</option>
-              </select>
-
-              <button
-                onClick={() => deleteApplication(app.id)}
-                style={{ marginLeft: "10px" }}
-              >
-                Delete
-              </button>
-            </li>
-            
-          
-        ))}
-      </ul>
+      <ApplicationList 
+        applications={applications}
+        filter={filter}
+        onStatusChange={updateStatus}
+        onDelete={deleteApplication}
+      />
       
     </div>
   );
