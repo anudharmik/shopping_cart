@@ -7,6 +7,8 @@ export default function App() {
   const [error, setError] = useState(null);
   const [company,setCompany]=useState("");
   const [role,setRole]=useState("");
+  const [filter,setFilter]=useState("All");
+  const visibleApplications =filter === "All" ? applications : applications.filter(app => app.status === filter);
 
   useEffect(() => {
     fetchApplications();
@@ -68,6 +70,23 @@ export default function App() {
       }
       }
   
+    async function updateStatus(id,newStatus){
+      const {error}=await supabase
+      .from("applications")
+      .update({status:newStatus})
+      .eq("id",id);
+
+      if(error){
+        setError(error.message);
+      }else{
+        setApplications(prev=>
+          prev.map(app=>
+            app.id=== id ? {...app,status:newStatus}:app
+          )
+        );
+      }
+    }
+    
 
   
 
@@ -92,24 +111,52 @@ export default function App() {
   </button>
 </form>
 
+    <select
+    value={filter}
+    onChange={e => setFilter(e.target.value)}
+    style={{ marginBottom: "10px" }}
+    >
+    <option value="All">All</option>
+    <option value="Applied">Applied</option>
+    <option value="Interview">Interview</option>
+    <option value="Offer">Offer</option>
+    <option value="Rejected">Rejected</option>
+    </select>
+
       {loading && <p>Loading applications...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {!loading && applications.length === 0 && (
+      {!loading && visibleApplications.length === 0 && (
         <p>No applications yet</p>
       )}
 
       <ul>
-        {applications.map(app => (
-          <li key={app.id}>
-            <b>{app.company}</b> — {app.role} ({app.status})
-            <button
-              onClick={() => deleteApplication(app.id)}
-              style={{ marginLeft: "10px" }}
-            >
-              Delete
-            </button>
-          </li>
+        {visibleApplications.map(app => (
+              <li key={app.id}>
+              <b>{app.company}</b> — {app.role}
+
+              <select
+                value={app.status}
+                onChange={e =>
+                  updateStatus(app.id, e.target.value)
+                }
+                style={{ marginLeft: "10px" }}
+              >
+                <option>Applied</option>
+                <option>Interview</option>
+                <option>Offer</option>
+                <option>Rejected</option>
+              </select>
+
+              <button
+                onClick={() => deleteApplication(app.id)}
+                style={{ marginLeft: "10px" }}
+              >
+                Delete
+              </button>
+            </li>
+            
+          
         ))}
       </ul>
       
