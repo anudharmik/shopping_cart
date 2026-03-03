@@ -3,6 +3,24 @@ export default function ApplicationItem({
   onStatusChange,
   onDelete
 }) {
+
+  function getStatusColor(status){
+      switch (status)
+    {
+      case "Applied":
+        return "#2563eb";
+      case "Interview":
+        return "#f59e0b";
+      case "Offer":
+        return "#16a34a";
+      case "Rejected":
+        return "#dc2626";
+      default:
+        return "#6b7280";
+    }
+  }
+
+{
   return (
     <li>
       <b>{app.company}</b> — {app.role}
@@ -10,7 +28,14 @@ export default function ApplicationItem({
       <select
         value={app.status}
         onChange={e => onStatusChange(app.id, e.target.value)}
-        style={{ marginLeft: "10px" }}
+        style={{ 
+          marginLeft: "10px",
+          padding:"4px 8px",
+          borderRadius :"6px",
+          border:"none",
+          backgroundColor:getStatusColor(app.status),
+          color:"white"
+        }}
       >
         <option>Applied</option>
         <option>Interview</option>
@@ -26,4 +51,5 @@ export default function ApplicationItem({
       </button>
     </li>
   );
+}
 }

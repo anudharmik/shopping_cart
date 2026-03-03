@@ -1,0 +1,18 @@
+button {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: none;
+  background: #000000;
+  color: rgb(254, 254, 254);
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.85;
+}
+
+input {
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}

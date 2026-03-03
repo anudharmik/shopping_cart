@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient";
 import ApplicationForm from "./components/ApplicationForm";
 import ApplicationList from "./components/ApplicationList";
-
+import "./index.css" ;
 
 export default function App() {
   const [applications, setApplications] = useState([]);
@@ -14,6 +14,13 @@ export default function App() {
   const [filter,setFilter]=useState("All");
   //if i want to persist filter state, i can use local storage and useEffect to save and load it (less advisable)
   //better options to persist filter state: use URL query parameters(e.g. ?filter=Interview) and read it on load, update it on change
+
+  const stats={
+    Applied:applications.filter(a=>a.status==="Applied").length,
+    Interview:applications.filter(a=>a.status==="Interview").length,
+    Offer:applications.filter(a=>a.status==="Offer").length,
+    Rejected:applications.filter(a=>a.status==="Rejected").length,
+  }
 
   useEffect(() => {
     fetchApplications();
@@ -97,7 +104,12 @@ export default function App() {
 
 
   return (
-    <div style={{ padding: "20px" }}>
+    <div style={{ 
+    padding: "20px" ,
+    maxWidth:"800px",
+    margin:"40px auto",
+    fontFamily:"Arial, -apple-system, sans-serif",
+    }}>
       <h1>Job Application Tracker</h1>
       
       <ApplicationForm
@@ -107,6 +119,29 @@ export default function App() {
         onRoleChange={setRole}
         onSubmit={handleSubmit}
       />
+    
+    <div style={{
+      display:"flex",
+      gap:"10px",
+      marginBottm:"20px",
+      flexWrap:"wrap"
+    }}
+    >
+      {Object.entries(stats).map(([key,value]) =>
+        <div 
+          key={key}
+          style={{
+          padding:"8px 12px",
+          borderRadius :"8px",
+          background:"#f3f4f6",
+          fontSize:"14px",
+          fontWeight:"bold",
+        }}
+        >
+          <strong>{key}:</strong> {value}
+        </div>
+      )}
+    </div>
 
       <select
         value={filter}
