@@ -10,6 +10,9 @@ export default function App() {
   const [error, setError] = useState(null);
   const [company,setCompany]=useState("");
   const [role,setRole]=useState("");
+  const [user,setUser]=useState(null);
+  const [email,setEmail]=useState("");
+  const [password,setPassword]=useState("");
 
   const [filter,setFilter]=useState("All");
   //if i want to persist filter state, i can use local storage and useEffect to save and load it (less advisable)
@@ -23,17 +26,35 @@ export default function App() {
   }
 
   useEffect(() => {
+    if(user){
     fetchApplications();
-  }, []);
+    }
+  }, [user]);
+
+  useEffect(()=>{
+    const session=supabase.auth.getSession();
+
+    session.then(({data})=>{
+      setUser(data.session?.user ?? null);
+    });
+    const {data:listener}=supabase.auth.onAuthStateChange(
+      (_event,session)=>{
+        setUser(session?.user ?? null);
+      }
+    );
+
+    return ()=>{
+      listener.subscription.unsubscribe();
+    };
+  },[]);
 
   async function fetchApplications() {
     setLoading(true);
-
     const { data, error } = await supabase
       .from("applications")
       .select("*")
+      .eq("user_id",user.id)
       .order("created_at", { ascending: false });
-
     if (error) {
       setError(error.message);
     } else {
@@ -55,6 +76,7 @@ export default function App() {
         company,
         role,
         status:"Applied",
+        user_id:user.id
       }
     ]);
 
@@ -99,19 +121,86 @@ export default function App() {
       }
     }
     
+    async function handleSignup()
+    {
+      const{error}=await supabase.auth.signUp({
+        email,
+        password
+      });
 
-  
+      if(error){
+        alert(error.message);
+      }else{
+        alert("Signup successuful! Check your mail");
+      } 
+    } 
 
+    async function handleLogin(){
+      const{error}=await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
 
+      if(error){
+        alert(error.message);
+      }
+    }
+
+    async function handleLogout(){
+      await supabase.auth.signOut();
+    }
+
+  if (!user) {
   return (
+    <div style={{ 
+    padding: "20px" ,
+    maxWidth:"800px",
+    margin:"40px auto",
+    fontFamily:"system-ui, -apple-system, sans-serif",
+    }}>
+      <h1>Login</h1>
+
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+      />
+
+      <br /><br />
+
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={e => setPassword(e.target.value)}
+      />
+
+      <br /><br />
+
+      <button onClick={handleLogin}>Login</button>
+      <button onClick={handleSignup} style={{ marginLeft: "10px" }}>
+        Sign Up
+      </button>
+    </div>
+    );
+  }
+  return (
+    
     <div style={{ 
     padding: "20px" ,
     maxWidth:"800px",
     margin:"40px auto",
     fontFamily:"Arial, -apple-system, sans-serif",
     }}>
-      <h1>Job Application Tracker</h1>
       
+
+      <b><h1>Job Application Tracker</h1></b>
+      
+      <div style={{ marginBottom: "20px" }}>
+        <p>Logged in as {user.email}</p>
+        <button onClick={handleLogout}>Logout</button>
+      </div>
       <ApplicationForm
         company={company}
         role={role}
