@@ -146,6 +146,7 @@ export default function App() {
       }
     }
 
+    
     async function handleLogout(){
       await supabase.auth.signOut();
     }
