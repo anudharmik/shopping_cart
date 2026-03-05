@@ -4,16 +4,21 @@ import ApplicationForm from "./components/ApplicationForm";
 import ApplicationList from "./components/ApplicationList";
 import "./index.css" ;
 
+
 export default function App() {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  //"single source of truth" 
+  //that's why we define following three states here and pass them down as props to ApplicationForm
   const [company,setCompany]=useState("");
   const [role,setRole]=useState("");
+  const [notes,setNotes]=useState("");
+
   const [user,setUser]=useState(null);
   const [email,setEmail]=useState("");
   const [password,setPassword]=useState("");
-
 
   const [filter,setFilter]=useState("All");
   //if i want to persist filter state, i can use local storage and useEffect to save and load it (less advisable)
@@ -28,11 +33,14 @@ export default function App() {
     Rejected:applications.filter(a=>a.status==="Rejected").length,
   }
 
+
   useEffect(() => {
     if(user){
     fetchApplications();
     }
   }, [user]);
+
+
 
   useEffect(()=>{
     const getSession=async ()=>{
@@ -40,19 +48,18 @@ export default function App() {
       setUser(data.session?.user ?? null);
       setAuthLoading(false);
     };
-
     getSession();
-
     const {data : listener}=supabase.auth.onAuthStateChange(
       (_event,session)=>{
         setUser(session?.user?? null);
       }
     );
-
     return ()=>{
       listener.subscription.unsubscribe();
     };
   },[]);
+
+
 
   async function fetchApplications() {
     setLoading(true);
@@ -72,9 +79,7 @@ export default function App() {
 
   async function handleSubmit(e){
     e.preventDefault();
-
     if(!company || !role) return ;
-
     const {error}=await supabase
     .from("applications")
     .insert([
@@ -82,6 +87,7 @@ export default function App() {
         company,
         role,
         status:"Applied",
+        notes,
         user_id:user.id
       }
     ]);
@@ -91,9 +97,12 @@ export default function App() {
     }else{
       setCompany("");
       setRole("");
+      setNotes("");
       fetchApplications(); //refresh list
     }
   }
+
+
     
     async function deleteApplication(id){
       const{error}=await supabase
@@ -109,6 +118,8 @@ export default function App() {
         );
       }
       }
+
+
   
     async function updateStatus(id,newStatus){
       const {error}=await supabase
@@ -127,13 +138,11 @@ export default function App() {
       }
     }
     
-    async function handleSignup()
-    {
+    async function handleSignup(){
       const{error}=await supabase.auth.signUp({
         email,
         password
       });
-
       if(error){
         alert(error.message);
       }else{
@@ -141,12 +150,12 @@ export default function App() {
       } 
     } 
 
+
     async function handleLogin(){
       const{error}=await supabase.auth.signInWithPassword({
         email,
         password
       });
-
       if(error){
         alert(error.message);
       }
@@ -157,10 +166,12 @@ export default function App() {
       await supabase.auth.signOut();
     }
 
+
   if(authLoading){
     return <p>Loading session...</p>;
   }
   
+
   if (!user) {
   return (
     <div style={{ 
@@ -223,6 +234,8 @@ export default function App() {
         role={role}
         onCompanyChange={setCompany}
         onRoleChange={setRole}
+        notes={notes}
+        onNotesChange={setNotes}
         onSubmit={handleSubmit}
       />
     

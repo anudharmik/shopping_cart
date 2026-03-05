@@ -24,6 +24,10 @@ export default function ApplicationItem({
   return (
     <li>
       <b>{app.company}</b> — {app.role}
+      
+      {app.notes && (
+        <p style={{ fontSize:"14px",color:"gray"}}>{app.notes}</p>
+      )}
 
       <select
         value={app.status}
