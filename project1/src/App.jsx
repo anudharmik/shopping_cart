@@ -14,9 +14,12 @@ export default function App() {
   const [email,setEmail]=useState("");
   const [password,setPassword]=useState("");
 
+
   const [filter,setFilter]=useState("All");
   //if i want to persist filter state, i can use local storage and useEffect to save and load it (less advisable)
   //better options to persist filter state: use URL query parameters(e.g. ?filter=Interview) and read it on load, update it on change
+
+  const [authLoading,setAuthLoading]=useState(true); //to handle flicker and ensure our UI waits for supabase to restore the session
 
   const stats={
     Applied:applications.filter(a=>a.status==="Applied").length,
@@ -32,14 +35,17 @@ export default function App() {
   }, [user]);
 
   useEffect(()=>{
-    const session=supabase.auth.getSession();
-
-    session.then(({data})=>{
+    const getSession=async ()=>{
+      const {data}= await supabase.auth.getSession();
       setUser(data.session?.user ?? null);
-    });
-    const {data:listener}=supabase.auth.onAuthStateChange(
+      setAuthLoading(false);
+    };
+
+    getSession();
+
+    const {data : listener}=supabase.auth.onAuthStateChange(
       (_event,session)=>{
-        setUser(session?.user ?? null);
+        setUser(session?.user?? null);
       }
     );
 
@@ -151,21 +157,29 @@ export default function App() {
       await supabase.auth.signOut();
     }
 
+  if(authLoading){
+    return <p>Loading session...</p>;
+  }
+  
   if (!user) {
   return (
     <div style={{ 
-    padding: "20px" ,
-    maxWidth:"800px",
-    margin:"40px auto",
+    padding: "30px" ,
+    maxWidth:"400px",
+    margin:"100px auto",
+    textAlign:"center",
+    border:"1px solid #ddd",
+    borderRadius:"10px",
     fontFamily:"system-ui, -apple-system, sans-serif",
     }}>
-      <h1>Login</h1>
+      <h1>Job Tracker Login</h1>
 
       <input
         type="email"
         placeholder="Email"
         value={email}
         onChange={e => setEmail(e.target.value)}
+        style={{width:"100%",marginBottom:"10px",padding :"8px"}}
       />
 
       <br /><br />
@@ -175,6 +189,7 @@ export default function App() {
         placeholder="Password"
         value={password}
         onChange={e => setPassword(e.target.value)}
+        style={{width:"100%",marginBottom:"10px",padding :"8px"}}
       />
 
       <br /><br />
@@ -202,6 +217,7 @@ export default function App() {
         <p>Logged in as {user.email}</p>
         <button onClick={handleLogout}>Logout</button>
       </div>
+
       <ApplicationForm
         company={company}
         role={role}
@@ -245,7 +261,8 @@ export default function App() {
         <option value="Rejected">Rejected</option>
       </select>
 
-      {loading && <p>Loading...</p>}
+      {loading && <p>Fetching your applications...</p>}
+
       {error && <p style ={{color:"magenta"}}>{error}</p>}
 
       <ApplicationList 

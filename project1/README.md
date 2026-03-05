@@ -57,3 +57,25 @@ src/
 ```bash
 npm install
 npm run dev
+
+## Architecture
+
+This project implements a multi-user architecture using Supabase.
+
+Authentication is handled by Supabase Auth.  
+Each application record is linked to a user through the `user_id` field.
+
+Database security is enforced using **Row Level Security (RLS)** policies.
+
+Policies ensure that users can only:
+
+- view their own applications
+- insert their own applications
+- update their own applications
+- delete their own applications
+
+Example policy rule:
+
+auth.uid() = user_id
+
+This ensures complete data isolation between users.
