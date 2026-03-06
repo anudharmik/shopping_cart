@@ -21,6 +21,7 @@ export default function App() {
   const [password,setPassword]=useState("");
 
   const [deadline,setDeadline]=useState("");
+  const [search,setSearch]=useState("");
 
   const [filter,setFilter]=useState("All");
   //if i want to persist filter state, i can use local storage and useEffect to save and load it (less advisable)
@@ -284,11 +285,20 @@ export default function App() {
 
       {error && <p style ={{color:"magenta"}}>{error}</p>}
 
+      <input
+      type="text"
+      placeholder="Search by company or role..."
+      value={search}
+      onChange={(e)=>setSearch(e.target.value)}
+      style={{marginBottom:"15px",padding :"6px",width:"100%"}}
+      />
+
       <ApplicationList 
         applications={applications}
         filter={filter}
         onStatusChange={updateStatus}
         onDelete={deleteApplication}
+        search={search}
       />
       
     </div>
