@@ -292,7 +292,6 @@ export default function App() {
       onChange={(e)=>setSearch(e.target.value)}
       style={{marginBottom:"15px",padding :"6px",width:"100%"}}
       />
-
       <ApplicationList 
         applications={applications}
         filter={filter}
