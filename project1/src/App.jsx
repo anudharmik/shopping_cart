@@ -69,7 +69,7 @@ export default function App() {
       .from("applications")
       .select("*")
       .eq("user_id",user.id)
-      .order("created_at", { ascending: false });
+      .order("deadline", { ascending: true ,nullsLast:true});
     if (error) {
       setError(error.message);
     } else {
