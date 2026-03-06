@@ -6,7 +6,9 @@ export default function ApplicationForm({
   onRoleChange,
   onSubmit,
   notes,
-  onNotesChange
+  onNotesChange,
+  deadline,
+  onDeadlineChange
 }) {
 
  
@@ -32,7 +34,14 @@ export default function ApplicationForm({
       style={{display:"block",marginTop:"10px",width:"100px"}}
       />
 
-      <button type="submit" style={{ marginLeft: "10px" }}>
+      <input
+        type="date"
+        value={deadline}
+        onChange={(e) => onDeadlineChange(e.target.value)}
+        style={{display :"block",marginTop:"10px"}}
+      />
+
+     <button type="submit" style={{ marginLeft: "10px" }}>
         Add
       </button>
     </form>

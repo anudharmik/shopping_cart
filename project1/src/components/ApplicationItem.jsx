@@ -24,7 +24,13 @@ export default function ApplicationItem({
   return (
     <li>
       <b>{app.company}</b> — {app.role}
-      
+
+      {app.deadline && (
+        <p style={{fontSize:"14px",coor:"darkred"}}>
+          Deadline: {app.deadline}
+        </p>
+      )}
+
       {app.notes && (
         <p style={{ fontSize:"14px",color:"gray"}}>{app.notes}</p>
       )}
@@ -53,6 +59,7 @@ export default function ApplicationItem({
       >
         Delete
       </button>
+
     </li>
   );
 }

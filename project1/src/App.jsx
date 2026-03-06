@@ -20,6 +20,8 @@ export default function App() {
   const [email,setEmail]=useState("");
   const [password,setPassword]=useState("");
 
+  const [deadline,setDeadline]=useState("");
+
   const [filter,setFilter]=useState("All");
   //if i want to persist filter state, i can use local storage and useEffect to save and load it (less advisable)
   //better options to persist filter state: use URL query parameters(e.g. ?filter=Interview) and read it on load, update it on change
@@ -88,7 +90,8 @@ export default function App() {
         role,
         status:"Applied",
         notes,
-        user_id:user.id
+        user_id:user.id,
+        deadline: deadline ||null, 
       }
     ]);
 
@@ -98,6 +101,7 @@ export default function App() {
       setCompany("");
       setRole("");
       setNotes("");
+      setDeadline("");
       fetchApplications(); //refresh list
     }
   }
@@ -232,11 +236,13 @@ export default function App() {
       <ApplicationForm
         company={company}
         role={role}
+        deadline={deadline}
+        notes={notes}
         onCompanyChange={setCompany}
         onRoleChange={setRole}
-        notes={notes}
         onNotesChange={setNotes}
         onSubmit={handleSubmit}
+        onDeadlineChange={setDeadline}
       />
     
     <div style={{
