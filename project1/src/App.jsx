@@ -285,6 +285,7 @@ export default function App() {
 
       {error && <p style ={{color:"magenta"}}>{error}</p>}
 
+
       <input
       type="text"
       placeholder="Search by company or role..."
@@ -292,6 +293,7 @@ export default function App() {
       onChange={(e)=>setSearch(e.target.value)}
       style={{marginBottom:"15px",padding :"6px",width:"100%"}}
       />
+
       <ApplicationList 
         applications={applications}
         filter={filter}
